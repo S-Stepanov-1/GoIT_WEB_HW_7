@@ -48,7 +48,7 @@ class Grade(Base):
     __tablename__ = "grades"
     id: Mapped[int] = mapped_column(primary_key=True)
     grade: Mapped[int] = mapped_column(nullable=False)
-    date_of: Mapped[Date] = mapped_column(nullable=False)
+    date_of: Mapped[Date] = mapped_column(Date, nullable=False)
     student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete="CASCADE"))
     subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"))
     student: Mapped["Student"] = relationship("Student", backref="grade")
