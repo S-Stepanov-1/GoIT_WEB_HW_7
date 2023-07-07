@@ -45,3 +45,44 @@ def select_2():
     for subj, student, avg_grade in result.all():
         print(subj, student, avg_grade)
 
+
+def select_3():
+    """--- Find the average score of groups in a particular subject ---"""
+    print(select_3.__doc__)
+
+    statement = (select(Group.name, Subject.name, func.round(func.avg(Grade.grade), 2))
+                 .join(Student, Student.group_id == Group.id)
+                 .join(Grade, Grade.student_id == Student.id)
+                 .join(Subject, Subject.id == Grade.subject_id)
+                 .group_by(Group.name)
+                 .group_by(Subject.name)
+                 .order_by(Group.name)
+                 )
+
+    result = session.execute(statement)
+    for subj, group, avg_grade in result.all():
+        print(subj, group, avg_grade)
+
+
+def select_4():
+    """--- Find the average score on the stream (across the entire grade table) ---"""
+    print(select_4.__doc__)
+
+    statement = (select(func.round(func.avg(Grade.grade), 2))
+                 )
+
+    result = session.execute(statement)
+    print(result.scalar())
+
+
+def select_5():
+    """--- Find what courses a particular teacher is reading ---"""
+    print(select_5.__doc__)
+
+    statement = (select(Teacher.fullname, Subject.name)
+                 .join(Subject, Subject.teacher_id == Teacher.id)
+                 .order_by(Teacher.fullname)
+                 )
+    result = session.execute(statement)
+    for teacher, subj in result.all():
+        print(teacher, "\t", subj)
