@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Date
+from sqlalchemy import ForeignKey, String, Date, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
 
@@ -20,7 +20,7 @@ class Teacher(Base):
 
     @hybrid_property
     def fullname(self):
-        return f"{self.name} {self.surname}"
+        return func.concat(self.name, ' ', self.surname)
 
 
 class Student(Base):
@@ -33,7 +33,7 @@ class Student(Base):
 
     @hybrid_property
     def fullname(self):
-        return f"{self.name} {self.surname}"
+        return func.concat(self.name, ' ', self.surname)
 
 
 class Subject(Base):
@@ -51,5 +51,5 @@ class Grade(Base):
     date_of: Mapped[Date] = mapped_column(Date, nullable=False)
     student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete="CASCADE"))
     subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"))
-    student: Mapped["Student"] = relationship("Student", backref="grade")
-    subject: Mapped["Subject"] = relationship("Subject", backref="grade")
+    student: Mapped["Student"] = relationship("Student", backref="grades")
+    subject: Mapped["Subject"] = relationship("Subject", backref="grades")
