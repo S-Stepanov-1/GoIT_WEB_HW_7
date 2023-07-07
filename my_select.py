@@ -112,7 +112,8 @@ def select_7():
                  .join(Student, Student.id == Grade.student_id)
                  .join(Group, Group.id == Student.group_id)
                  .where(Group.id == 1)  # you can change the values for "g.id"...
-                 .where(Subject.id == 1)  # ...and for "subj.id" to get grades for different groups in different subjects
+                 .where(Subject.id == 1)
+                 # ...and for "subj.id" to get grades for different groups in different subjects
                  )
     result = session.execute(statement)
     for line in result.all():
@@ -124,7 +125,7 @@ def select_8():
     print(select_8.__doc__)
 
     statement = (select(Teacher.fullname, Subject.name, func.round(func.avg(Grade.grade), 2))
-                 .join(Subject, Subject.teacher_id == Teacher.id)
+                 .join(Subject, Teacher.id == Subject.teacher_id)
                  .join(Grade, Grade.subject_id == Subject.id)
                  .group_by(Teacher.id)
                  .group_by(Subject.name)
@@ -133,3 +134,39 @@ def select_8():
     result = session.execute(statement)
     for teacher, subject, avg_grade in result.all():
         print(teacher, subject, avg_grade)
+
+
+def select_9():
+    """--- Find a list of the courses a particular student is taking ---"""
+    print(select_9.__doc__)
+
+    statement = (select(Student.fullname, Subject.name)
+                 .join(Grade, Student.id == Grade.student_id)
+                 .join(Subject, Subject.id == Grade.subject_id)
+                 # .where(Student.id == 1)  # uncomment this line and change Student.id to get info about each particular student
+                 .group_by(Student.id)
+                 .group_by(Subject.id)
+                 .order_by(Student.name)
+                 )
+    result = session.execute(statement)
+    for student, subject in result.all():
+        print(student, subject)
+
+
+def select_10():
+    """--- A list of courses that a particular student is taught by a particular teacher ---"""
+    print(select_10.__doc__)
+
+    statement = (select(Teacher.fullname, Student.fullname, Subject.name)
+                 .join(Subject, Teacher.id == Subject.teacher_id)
+                 .join(Grade, Subject.id == Grade.subject_id)
+                 .join(Student, Student.id == Grade.student_id)
+                 # uncomment 2 next lines and change Student.id and Teacher.id to get a list of subjects that a particular student is taught by a particular teacher
+                 # .where(Student.id == 10)
+                 # .where(Teacher.id == 2)
+                 .group_by(Student.id).group_by(Teacher.id).group_by(Subject.id)
+                 .order_by(Student.id)
+                 )
+    result = session.execute(statement)
+    for student, teacher, subject in result.all():
+        print(student, " | ", teacher, " | ", subject)
