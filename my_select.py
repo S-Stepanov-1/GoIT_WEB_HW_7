@@ -170,3 +170,55 @@ def select_10():
     result = session.execute(statement)
     for student, teacher, subject in result.all():
         print(student, " | ", teacher, " | ", subject)
+
+
+def select_11():
+    """--- The average score that a particular teacher gives to a particular student in each course ---"""
+    print(select_11.__doc__)
+
+    statement = (select(Student.fullname, Teacher.fullname, Subject.name, func.round(func.avg(Grade.grade), 2))
+                 .join(Grade, Student.id == Grade.student_id)
+                 .join(Subject, Subject.id == Grade.subject_id)
+                 .join(Teacher, Teacher.id == Subject.teacher_id)
+                 # change Teacher.id & Student.id to find the average score
+                 # that a particular teacher gives to a particular student in each course
+                 .where(Teacher.id == 2)
+                 .where(Student.id == 5)
+                 .group_by(Teacher.id)
+                 .group_by(Student.id)
+                 .group_by(Subject.name)
+                 )
+    result = session.execute(statement)
+    for student, teacher, subject, avg_grade in result.all():
+        print(f"{student} | {teacher} | {subject} | {avg_grade}")
+
+
+def select_12():
+    """--- The grades of students in a particular group in a particular subject in the last class ---"""
+    print(select_12.__doc__)
+
+    group_id = input("Enter a group id: >>> ")
+    subject_id = input("Enter a subject id: >>> ")
+
+    # firstly we should find the last class for the given group and subject
+    sub_query = (select(Grade.date_of)
+                 .join(Student)
+                 .join(Group, Group.id == group_id)
+                 .where(Grade.subject_id == subject_id)
+                 .order_by(desc(Grade.date_of))
+                 .limit(1)).scalar_subquery()
+
+    statement = (select(Student.fullname, Subject.name, Group.name, Grade.grade, Grade.date_of)
+                 .select_from(Grade)
+                 .join(Student)
+                 .join(Subject)
+                 .join(Group)
+                 .where(Grade.subject_id == subject_id)
+                 .where(Group.id == group_id)
+                 .where(Grade.date_of == sub_query)
+                 .order_by(desc(Grade.date_of))
+                 )
+    result = session.execute(statement)
+
+    for line in result.all():
+        print(line)
