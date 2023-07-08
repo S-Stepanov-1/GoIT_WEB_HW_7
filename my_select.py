@@ -1,7 +1,21 @@
-from sqlalchemy import func, desc, and_, distinct, select
+from sqlalchemy import func, desc, select
 
 from models import Student, Teacher, Group, Subject, Grade
 from db_connect import session
+
+from prettytable import PrettyTable
+
+
+def handle_input():
+    while True:
+        try:
+            q_num = int(input("Please enter the query number you want to perform: "))
+            if 1 <= q_num <= 12:  # we have only 11 queries to DB in this task
+                return q_num
+            else:
+                print("\nThe query number must be from 1 to 11. Try again.\n")
+        except ValueError:
+            print("\nPlease use integer number like 1, 2, 3...\n")
 
 
 def set_subj():
@@ -12,6 +26,7 @@ def set_subj():
 
 def select_1():
     """--- Find the 5 students with the highest grade point average in all subjects ---"""
+    print(select_1.__doc__)
     statement = (select(Student.fullname, Group.name, func.round(func.avg(Grade.grade), 2).label("average_grade"))
                  .join(Group)
                  .join(Grade)
@@ -22,10 +37,7 @@ def select_1():
                  )
 
     result = session.execute(statement)
-    print(select_1.__doc__)
-
-    for student, group, grade in result.all():
-        print(student, group, grade)
+    return result.all()
 
 
 def select_2():
@@ -41,9 +53,7 @@ def select_2():
                  )
 
     result = session.execute(statement)
-
-    for subj, student, avg_grade in result.all():
-        print(subj, student, avg_grade)
+    return result.all()
 
 
 def select_3():
@@ -60,19 +70,17 @@ def select_3():
                  )
 
     result = session.execute(statement)
-    for subj, group, avg_grade in result.all():
-        print(subj, group, avg_grade)
+    return result.all()
 
 
 def select_4():
     """--- Find the average score on the stream (across the entire grade table) ---"""
     print(select_4.__doc__)
 
-    statement = (select(func.round(func.avg(Grade.grade), 2))
-                 )
+    statement = (select(func.round(func.avg(Grade.grade), 2)))
 
     result = session.execute(statement)
-    print(result.scalar())
+    return result.all()
 
 
 def select_5():
@@ -83,9 +91,9 @@ def select_5():
                  .join(Subject, Subject.teacher_id == Teacher.id)
                  .order_by(Teacher.fullname)
                  )
+
     result = session.execute(statement)
-    for teacher, subj in result.all():
-        print(teacher, "\t", subj)
+    return result.all()
 
 
 def select_6():
@@ -99,8 +107,7 @@ def select_6():
                  .group_by(Group.name))
 
     result = session.execute(statement)
-    for group, student in result.all():
-        print(group, " | ", student)
+    return result.all()
 
 
 def select_7():
@@ -116,8 +123,7 @@ def select_7():
                  # ...and for "subj.id" to get grades for different groups in different subjects
                  )
     result = session.execute(statement)
-    for line in result.all():
-        print(line)
+    return result.all()
 
 
 def select_8():
@@ -132,8 +138,7 @@ def select_8():
                  .order_by(Teacher.id)
                  )
     result = session.execute(statement)
-    for teacher, subject, avg_grade in result.all():
-        print(teacher, subject, avg_grade)
+    return result.all()
 
 
 def select_9():
@@ -149,8 +154,7 @@ def select_9():
                  .order_by(Student.name)
                  )
     result = session.execute(statement)
-    for student, subject in result.all():
-        print(student, subject)
+    return result.all()
 
 
 def select_10():
@@ -168,8 +172,7 @@ def select_10():
                  .order_by(Student.id)
                  )
     result = session.execute(statement)
-    for student, teacher, subject in result.all():
-        print(student, " | ", teacher, " | ", subject)
+    return result.all()
 
 
 def select_11():
@@ -189,8 +192,7 @@ def select_11():
                  .group_by(Subject.name)
                  )
     result = session.execute(statement)
-    for student, teacher, subject, avg_grade in result.all():
-        print(f"{student} | {teacher} | {subject} | {avg_grade}")
+    return result.all()
 
 
 def select_12():
@@ -208,17 +210,33 @@ def select_12():
                  .order_by(desc(Grade.date_of))
                  .limit(1)).scalar_subquery()
 
-    statement = (select(Student.fullname, Subject.name, Group.name, Grade.grade, Grade.date_of)
-                 .select_from(Grade)
-                 .join(Student)
-                 .join(Subject)
-                 .join(Group)
+    statement = (select(Group.name, Subject.name, Student.fullname, Grade.date_of, Grade.grade)
+                 .join(Student, Student.group_id == Group.id)
+                 .join(Grade, Grade.student_id == Student.id)
+                 .join(Subject, Subject.id == Grade.subject_id)
                  .where(Grade.subject_id == subject_id)
                  .where(Group.id == group_id)
                  .where(Grade.date_of == sub_query)
                  .order_by(desc(Grade.date_of))
                  )
-    result = session.execute(statement)
 
-    for line in result.all():
-        print(line)
+    result = session.execute(statement)
+    return result.all()
+
+
+def main():
+    functions = {1: select_1, 2: select_2, 3: select_3, 4: select_4, 5: select_5, 6: select_6,
+                 7: select_7, 8: select_8, 9: select_9, 10: select_10, 11: select_11, 12: select_12
+                 }
+
+    query_number = handle_input()
+    list_result = functions[query_number]()  # calling the 'select_X' function according to query_number
+
+    table = PrettyTable(header=False)
+    for lst in list_result:
+        table.add_row(lst)
+    print(table)
+
+
+if __name__ == '__main__':
+    main()
