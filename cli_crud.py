@@ -2,6 +2,7 @@ import argparse
 from datetime import datetime
 from prettytable import PrettyTable
 from sqlalchemy.exc import DataError
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from models import Group, Student, Teacher, Subject, Grade
 from db_connect import session
@@ -167,8 +168,15 @@ def update(model, args):
                 print("\nPlease try again. Enter id and name\n")
 
 
-def delete(model):
-    ...
+def delete(model, args):
+    model = globals()[model]
+    try:
+        item = session.get(model, args.id)
+        session.delete(item)
+    except DataError:
+        print("\nPlease try again. ID should be an integer number.\n")
+    except (AttributeError, UnmappedInstanceError):
+        print("\nPlease enter a valid ID. Try again.\n")
 
 
 def main():
