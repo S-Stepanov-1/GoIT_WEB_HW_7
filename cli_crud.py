@@ -71,8 +71,8 @@ def create(model, args):
     # --------------------------------------------------------------------------------------
         case "Group":
             if args.name:
-                item = Group(name=args.name)
-                session.add(item)
+                group = Group(name=args.name)
+                session.add(group)
             else:
                 print("\nPlease try again and enter the name\n")
 
@@ -111,8 +111,60 @@ def read(model, args):
         print("\nPlease enter a valid ID. Try again.\n")
 
 
-def update(model):
-    ...
+def update(model, args):
+    match model:
+        case "Student":
+            if args.id and args.name and args.surname and args.group_id:
+                student = session.get(Student, args.id)
+                # --- new data ---
+                student.name = args.name
+                student.surname = args.surname
+                student.group_id = args.group_id
+
+                session.add(student)  # add new data
+            else:
+                print("\nPlease try again, enter id, name, surname and group_id\n")
+        # ------------------------------------------------------------------------------------
+        case "Teacher":
+            if args.id and args.name and args.surname:
+                teacher = session.get(Teacher, args.id)
+                # --- new data ---
+                teacher.name = args.name
+                teacher.surname = args.surname
+                session.add(teacher)  # add new data
+            else:
+                print("\nPlease try again, enter id, name and surname\n")
+        # --------------------------------------------------------------------------------------
+        case "Subject":
+            if args.id and args.name and args.teacher_id:
+                subject = session.get(Subject, args.id)
+                # --- new data ---
+                subject.name = args.name
+                subject.teacher_id = args.teacher_id
+                session.add(subject)  # add new data
+            else:
+                print("\nPlease try again, enter id, name and teacher_id\n")
+        # ---------------------------------------------------------------------------------------
+        case "Grade":
+            if args.id and args.grade and args.student_id and args.subject_id:
+                grade = session.get(Grade, args.id)
+                # --- new data ---
+                grade.grade = args.grade
+                grade.date_of = datetime.today().strftime("%Y-%m-%d")  # today
+                grade.student_id = args.student_id
+                grade.subject_id = args.subject_id
+
+                session.add(grade)  # add new data
+            else:
+                print("\nPlease try again. Enter id, grade, student_id and subject_id\n")
+        # --------------------------------------------------------------------------------------
+        case "Group":
+            if args.id and args.name:
+                group = session.get(Group, args.id)
+                group.name = args.name  # new data
+                session.add(group)  # add new data
+            else:
+                print("\nPlease try again. Enter id and name\n")
 
 
 def delete(model):
