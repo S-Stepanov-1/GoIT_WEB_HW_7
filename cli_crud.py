@@ -1,6 +1,7 @@
 import argparse
 from datetime import datetime
-
+from prettytable import PrettyTable
+from sqlalchemy.exc import DataError
 
 from models import Group, Student, Teacher, Subject, Grade
 from db_connect import session
@@ -76,8 +77,38 @@ def create(model, args):
                 print("\nPlease try again and enter the name\n")
 
 
-def read(model):
+def read(model, args):
+    table = PrettyTable(header=False)
+    result = None
 
+    try:
+        match model:
+            # -------------------------------------------------------------------------------------
+            case "Student":
+                student = session.get(Student, args.id)
+                result = student.id, student.name + " " + student.surname, student.group_id
+            # --------------------------------------------------------------------------------------
+            case "Teacher":
+                teacher = session.get(Teacher, args.id)
+                result = teacher.id, teacher.name + " " + teacher.surname
+            # --------------------------------------------------------------------------------------
+            case "Subject":
+                subject = session.get(Subject, args.id)
+                result = subject.id + subject.name + subject.teacher_id
+            # --------------------------------------------------------------------------------------
+            case "Grade":
+                grade = session.get(Grade, args.id)
+                result = grade.grade, grade.date_of, grade.student_id, grade.subject_id
+            # --------------------------------------------------------------------------------------
+            case "Group":
+                group = session.get(Group, args.id)
+                result = group.id, group.name
+        table.add_row(result)
+        print(table)
+    except DataError:
+        print("\nPlease try again. ID should be an integer number.\n")
+    except AttributeError:
+        print("\nPlease enter a valid ID. Try again.\n")
 
 
 def update(model):
@@ -97,7 +128,7 @@ def main():
 
         func(model, arguments)  # calling one of CRUDs function and pass "arguments" to it
 
-        session.commit()
+        session.commit()  # commit changes to DB
 
 
 if __name__ == '__main__':
