@@ -1,4 +1,6 @@
 import argparse
+from datetime import datetime
+
 
 from models import Group, Student, Teacher, Subject, Grade
 from db_connect import session
@@ -13,6 +15,9 @@ def get_args():
     parser.add_argument("-i", "--id", help="ID of model")
     parser.add_argument("-g", "--group_id", help="This argument is used only for students and shows the group of student")
     parser.add_argument("-t", "--teacher_id", help="This argument is used only for subjects and shows who is the teacher of this subject")
+    parser.add_argument("--grade", help="Grade (1, 2, 3, 4 or 5) for a student in a particular subject")
+    parser.add_argument("--student_id", help="This argument is only used for grades and shows the id of the student receiving the grade.")
+    parser.add_argument("--subject_id", help="This argument is only used for grades and shows the id of the course being graded.")
 
     args = parser.parse_args()
     return args
@@ -33,41 +38,46 @@ def arg_handler(arguments):
 
 
 def create(model, args):
-    if model == "Student":
-        if args.name and args.surname and args.group_id:
-            model = globals()[model]
-            student = model(name=args.name, surname=args.surname, group_id=args.group_id)
-            session.add(student)
-        else:
-            print("\nPlease try again, enter name, surname and group_id\n")
+    match model:
+        case "Student":
+            if args.name and args.surname and args.group_id:
+                student = Student(name=args.name, surname=args.surname, group_id=args.group_id)
+                session.add(student)
+            else:
+                print("\nPlease try again, enter name, surname and group_id\n")
     # ------------------------------------------------------------------------------------
-    elif model == "Teacher":
-        if args.name and args.surname:
-            model = globals()[model]
-            teacher = model(name=args.name, surname=args.surname)
-            session.add(teacher)
-        else:
-            print("\nPlease try again, enter name and surname\n")
+        case "Teacher":
+            if args.name and args.surname:
+                teacher = Teacher(name=args.name, surname=args.surname)
+                session.add(teacher)
+            else:
+                print("\nPlease try again, enter name and surname\n")
     # --------------------------------------------------------------------------------------
-    elif model == "Subject":
-        if args.name and args.teacher_id:
-            model = globals()[model]
-            subject = model(name=args.name, teacher_id=args.teacher_id)
-            session.add(subject)
-        else:
-            print("\nPlease try again, enter name, surname and group_id\n")
+        case "Subject":
+            if args.name and args.teacher_id:
+                subject = Subject(name=args.name, teacher_id=args.teacher_id)
+                session.add(subject)
+            else:
+                print("\nPlease try again, enter name, surname and group_id\n")
     # ---------------------------------------------------------------------------------------
-    elif model in ["Group", "Grade"]:
-        if args.name:
-            model = globals()[model]
-            item = model(name=args.name)
-            session.add(item)
-        else:
-            print("\nPlease try again and enter the name\n")
+        case "Grade":
+            if args.grade and args.student_id and args.subject_id:
+                today = datetime.today().strftime("%Y-%m-%d")
+                grade = Grade(grade=args.grade, date_of=today, student_id=args.student_id, subject_id=args.subject_id)
+                session.add(grade)
+            else:
+                print("\nPlease try again. Enter grade, student_id and subject_id\n")
+    # --------------------------------------------------------------------------------------
+        case "Group":
+            if args.name:
+                item = Group(name=args.name)
+                session.add(item)
+            else:
+                print("\nPlease try again and enter the name\n")
 
 
 def read(model):
-    ...
+
 
 
 def update(model):
