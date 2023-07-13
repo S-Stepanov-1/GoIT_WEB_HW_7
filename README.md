@@ -24,7 +24,7 @@ alembic revision --autogenerate -m 'Init'
 ```
 After this command you will have the empty tables in your DB PostgreSQL.
 ####  You will have the following Entity-Relationship model
-![Entity-Relationship model](Pictures/Entity_Relationship_model.jpg)
+![Entity-Relationship model](Pictures/ER-model.jpg)
 
 • Now you can fill the database with fake random data. Use this command:
 ```
