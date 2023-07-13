@@ -8,7 +8,11 @@ This project shows how to work with `PostgreSQL` database and ORM `SQLAlchemy`. 
 
 ## Running the program
 
-To start working with the database you need:
+To start working with this project you need to have access to `PostreSQL` database. For example, you can host PostreSQL using `Docker`. To do this, start Docker on your machine, download the official `PostreSQL image` and start the container with the command in command line
+```
+docker run --name some-postgres -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword -d postgres.
+```
+Instead of `some-postgres`, choose your own container name, and instead of `mysecretpassword`, choose your own password for connecting to the database. After that, set your password in the `config.ini` file: `PASSWORD=mysecretpassword`.
 
 • Clone this repository to your PC. To do this, run the command line and type
 ```
