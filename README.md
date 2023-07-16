@@ -20,7 +20,7 @@ git clone https://github.com/S-Stepanov-1/GoIT_WEB_HW_6.git
 ```
 • After that you need to install the dependencies. Use command
 ```
-poetry init
+poetry install
 ```
 • Then you need to create `alembic` migrations:
 ```
