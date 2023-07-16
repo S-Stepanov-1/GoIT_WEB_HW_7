@@ -16,7 +16,7 @@ Instead of `some-postgres`, choose your own container name, and instead of `myse
 
 • Clone this repository to your PC. To do this, run the command line and type
 ```
-git clone https://github.com/S-Stepanov-1/GoIT_WEB_HW_6.git
+git clone https://github.com/S-Stepanov-1/GoIT_WEB_HW_7.git
 ```
 • After that you need to install the dependencies. Use command
 ```
